@@ -1,16 +1,17 @@
 ﻿
-using Microsoft.WindowsAzure.Storage.Table;
+using Microsoft.Azure.Cosmos.Table;
 
-namespace FunctionAppIbiz
+namespace IbizProductsFunctionApp
 {
     public class Product: TableEntity
     {                        
         public Product(){}                
-        public Product(string type,string sku)
+        public Product(string category,string sku)
         {
-            this.PartitionKey = type;
+            this.PartitionKey = category;
             this.RowKey = sku;            
         }
         public string Name { get; set; }
+        public double Price { get; set; }
     }
 }

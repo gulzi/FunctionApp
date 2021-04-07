@@ -7,21 +7,21 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Microsoft.WindowsAzure.Storage.Table;
+using Microsoft.Azure.Cosmos.Table;
 using System.Collections.Generic;
+using System;
 
-namespace FunctionAppIbiz
+namespace IbizProductsFunctionApp
 {
-    public static class ProductFunctionApp
+    public static class ProductsFunctionApp
     {
-        [FunctionName("ProductFunctionApplication")]
+        [FunctionName("ProductsFunctionApp")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "{*path}")] HttpRequest req,
-            [Table("products", Connection = "TableConnectionString")] CloudTable table,
+            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "products")] HttpRequest req,
+            [Table("products", Connection = "TableStorageConnectionString")] CloudTable table,
             ILogger log)
-        {
-            log.LogInformation(req.Path);
-            if (req.Path == "/products")
+        {            
+            if (req.Method == "GET")
             {
                 TableContinuationToken token = null;
                 var entities = new List<Product>();
@@ -38,7 +38,7 @@ namespace FunctionAppIbiz
                 return new JsonResult(entities);
 
             }
-            else if (req.Path == "/addproduct")
+            else if (req.Method == "POST")
             {
                 Product product;
                 try
@@ -47,7 +47,8 @@ namespace FunctionAppIbiz
                     dynamic data = JsonConvert.DeserializeObject(requestBody);
                     product = new Product(data.category.ToString(), data.sku.ToString())
                     {
-                        Name = data.name
+                        Name = data.name,
+                        Price = Convert.ToDouble(data.price)
                     };
                 }
                 catch (System.Exception e)
