@@ -17,8 +17,8 @@ namespace IbizProductsFunctionApp
     {
         [FunctionName("ProductsFunctionApp")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "products")] HttpRequest req,
-            [Table("products", Connection = "TableStorageConnectionString")] CloudTable table,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "products")] HttpRequest req,
+            [Table("products")] CloudTable table,
             ILogger log)
         {            
             if (req.Method == "GET")
@@ -43,13 +43,8 @@ namespace IbizProductsFunctionApp
                 Product product;
                 try
                 {
-                    string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-                    dynamic data = JsonConvert.DeserializeObject(requestBody);
-                    product = new Product(data.category.ToString(), data.sku.ToString())
-                    {
-                        Name = data.name,
-                        Price = Convert.ToDouble(data.price)
-                    };
+                     product = await MapJsonToProductAsync(req);
+                    
                 }
                 catch (System.Exception e)
                 {
@@ -63,6 +58,19 @@ namespace IbizProductsFunctionApp
             else {
                 return new NotFoundResult();
             }                        
+        }
+
+        private static async Task<Product> MapJsonToProductAsync(HttpRequest req) {
+
+            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            dynamic data = JsonConvert.DeserializeObject(requestBody);
+            Product product = new Product(data.category.ToString(), data.id.ToString())
+            {
+                Name = data.name,
+                Price = Convert.ToDouble(data.price),
+                SkuNumber = data.sku
+            };
+            return product;
         }
     }
 }
