@@ -1,7 +1,7 @@
 ﻿
 using Microsoft.Azure.Cosmos.Table;
 
-namespace IbizProductsFunctionApp
+namespace RouteWildCard
 {
     public class Product: TableEntity
     {                        

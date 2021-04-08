@@ -11,17 +11,17 @@ using Microsoft.Azure.Cosmos.Table;
 using System.Collections.Generic;
 using System;
 
-namespace IbizProductsFunctionApp
+namespace RouteWildCard
 {
-    public static class ProductsFunctionApp
+    public static class RouteWildCardDemo
     {
         [FunctionName("ProductsFunctionApp")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "products")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "{*path}")] HttpRequest req,
             [Table("products")] CloudTable table,
             ILogger log)
         {            
-            if (req.Method == "GET")
+            if (req.Path == "/products")
             {
                 TableContinuationToken token = null;
                 var entities = new List<Product>();
@@ -38,7 +38,7 @@ namespace IbizProductsFunctionApp
                 return new JsonResult(entities);
 
             }
-            else if (req.Method == "POST")
+            else if (req.Path == "/addprodcucts")
             {
                 Product product;
                 try
